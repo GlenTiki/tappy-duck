@@ -1,18 +1,14 @@
 package com.thekemkid.duckgame.game.objects;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.thekemkid.duckgame.game.Assets;
 import com.thekemkid.duckgame.utils.Constants;
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+public class RubberDuck extends AbstractGameObject {
 
-public class BunnyHead extends AbstractGameObject {
-
-	public static final String TAG = BunnyHead.class.getName();
-
-	private final float JUMP_TIME_MAX = 0.3f;
-	private final float JUMP_TIME_MIN = 0.1f;
-	private final float JUMP_TIME_OFFSET_FLYING = JUMP_TIME_MAX - 0.018f;
+	private final float JUMP_TIME = 0.15f;
+	private final float JUMP_TIME_OFFSET_FLYING = JUMP_TIME - 0.018f;
 
 	public enum VIEW_DIRECTION {
 		LEFT, RIGHT
@@ -26,16 +22,14 @@ public class BunnyHead extends AbstractGameObject {
 	public VIEW_DIRECTION viewDirection;
 	public float timeJumping;
 	public JUMP_STATE jumpState;
-	public boolean hasFeatherPowerup;
-	public float timeLeftFeatherPowerup;
 
-	public BunnyHead() {
+	public RubberDuck() {
 		init();
 	}
 
 	public void init() {
 		dimension.set(1, 1);
-		regHead = Assets.instance.bunny.head;
+		regHead = Assets.instance.player.duck;
 
 		origin.set(dimension.x / 2, dimension.y / 2); // Center image on game
 														// object
@@ -43,7 +37,7 @@ public class BunnyHead extends AbstractGameObject {
 		bounds.set(0, 0, dimension.x, dimension.y); // Bounding box for
 													// collision detection
 
-		terminalVelocity.set(3.0f, 4.0f); // Set physics values
+		terminalVelocity.set(3.0f, 10.0f); // Set physics values
 		friction.set(12.0f, 0.0f);
 		acceleration.set(0.0f, -25.0f);
 
@@ -52,8 +46,6 @@ public class BunnyHead extends AbstractGameObject {
 		jumpState = JUMP_STATE.FALLING; // Jump state
 		timeJumping = 0;
 
-		hasFeatherPowerup = false; // Power-ups
-		timeLeftFeatherPowerup = 0;
 	};
 
 	public void setJumping(boolean jumpKeyPressed) {
@@ -66,31 +58,17 @@ public class BunnyHead extends AbstractGameObject {
 			}
 			break;
 		case JUMP_RISING: // Rising in the air
-			if (jumpKeyPressed && hasFeatherPowerup) {
-				timeJumping = JUMP_TIME_OFFSET_FLYING;
-			}
 			if (!jumpKeyPressed)
 				jumpState = JUMP_STATE.JUMP_FALLING;
 			break;
 		case FALLING: // Falling down
 		case JUMP_FALLING: // Falling down after jump
-			if (jumpKeyPressed && hasFeatherPowerup) {
+			if (jumpKeyPressed && timeJumping < JUMP_TIME) {
 				timeJumping = JUMP_TIME_OFFSET_FLYING;
 				jumpState = JUMP_STATE.JUMP_RISING;
-			}
+			} if(!jumpKeyPressed) timeJumping = 0;
 			break;
 		}
-	}
-
-	public void setFeatherPowerup(boolean pickedUp) {
-		hasFeatherPowerup = pickedUp;
-		if (pickedUp) {
-			timeLeftFeatherPowerup = Constants.ITEM_FEATHER_POWERUP_DURATION;
-		}
-	}
-
-	public boolean hasFeatherPowerup() {
-		return hasFeatherPowerup && timeLeftFeatherPowerup > 0;
 	}
 
 	@Override
@@ -100,14 +78,7 @@ public class BunnyHead extends AbstractGameObject {
 			viewDirection = velocity.x < 0 ? VIEW_DIRECTION.LEFT
 					: VIEW_DIRECTION.RIGHT;
 		}
-		if (timeLeftFeatherPowerup > 0) {
-			timeLeftFeatherPowerup -= deltaTime;
-			if (timeLeftFeatherPowerup < 0) {
-				// disable power-up
-				timeLeftFeatherPowerup = 0;
-				setFeatherPowerup(false);
-			}
-		}
+		
 	}
 
 	@Override
@@ -120,9 +91,9 @@ public class BunnyHead extends AbstractGameObject {
 			// Keep track of jump time
 			timeJumping += deltaTime;
 			// Jump time left?
-			if (timeJumping <= JUMP_TIME_MAX) {
+			if (timeJumping <= JUMP_TIME) {
 				// Still jumping
-				velocity.y = terminalVelocity.y;
+				velocity.y = terminalVelocity.y-2;
 			} else
 				jumpState = JUMP_STATE.FALLING;
 			break;
@@ -132,9 +103,9 @@ public class BunnyHead extends AbstractGameObject {
 			// Add delta times to track jump time
 			timeJumping += deltaTime;
 			// Jump to minimal height if jump key was pressed too short
-			if (timeJumping > 0 && timeJumping <= JUMP_TIME_MIN) {
+			if (timeJumping > 0 && timeJumping <= JUMP_TIME) {
 				// Still jumping
-				velocity.y = terminalVelocity.y;
+				velocity.y = terminalVelocity.y-2;
 			}
 		}
 		if (jumpState != JUMP_STATE.GROUNDED)
@@ -144,10 +115,6 @@ public class BunnyHead extends AbstractGameObject {
 	@Override
 	public void render(SpriteBatch batch) {
 		TextureRegion reg = null;
-
-		// Set special color when game object has a feather power-up
-		if (hasFeatherPowerup)
-			batch.setColor(1.0f, 0.8f, 0.0f, 1.0f);
 		// Draw image
 		reg = regHead;
 		batch.draw(reg.getTexture(), position.x, position.y, origin.x,
@@ -159,4 +126,5 @@ public class BunnyHead extends AbstractGameObject {
 		// Reset color to white
 		batch.setColor(1, 1, 1, 1);
 	}
+
 }

@@ -5,14 +5,10 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import com.thekemkid.duckgame.game.objects.AbstractGameObject;
-import com.thekemkid.duckgame.game.objects.BunnyHead;
-import com.thekemkid.duckgame.game.objects.Carrot;
 import com.thekemkid.duckgame.game.objects.Clouds;
-import com.thekemkid.duckgame.game.objects.Feather;
-import com.thekemkid.duckgame.game.objects.Goal;
-import com.thekemkid.duckgame.game.objects.GoldCoin;
 import com.thekemkid.duckgame.game.objects.Mountains;
 import com.thekemkid.duckgame.game.objects.Rock;
+import com.thekemkid.duckgame.game.objects.RubberDuck;
 import com.thekemkid.duckgame.game.objects.WaterOverlay;
 
 public class Level {
@@ -51,11 +47,7 @@ public class Level {
 	public Mountains mountains;
 	public WaterOverlay waterOverlay;
 
-	public BunnyHead bunnyHead;
-	public Array<GoldCoin> goldCoins;
-	public Array<Feather> feathers;
-	public Array<Carrot> carrots;
-	public Goal goal;
+	public RubberDuck player;
 
 	public Level(String filename) {
 		init(filename);
@@ -64,14 +56,10 @@ public class Level {
 	private void init(String filename) {
 
 		// player character
-		bunnyHead = null;
+		player = null;
 
 		// objects
 		rocks = new Array<Rock>();
-		goldCoins = new Array<GoldCoin>();
-		feathers = new Array<Feather>();
-		carrots = new Array<Carrot>();
-		goal = null;
 
 		// load image file that represents the level data
 		Pixmap pixmap = new Pixmap(Gdx.files.internal(filename));
@@ -106,40 +94,11 @@ public class Level {
 																					// spawn
 																					// point
 					// player spawn point
-					obj = new BunnyHead();
+					obj = new RubberDuck();
 					offsetHeight = -3.0f;
 					obj.position.set(pixelX, baseHeight * obj.dimension.y
 							+ offsetHeight);
-					bunnyHead = (BunnyHead) obj;
-				} else if (BLOCK_TYPE.ITEM_FEATHER.sameColor(currentPixel)) { // feather
-					// feather
-					obj = new Feather();
-					offsetHeight = -1.5f;
-					obj.position.set(pixelX, baseHeight * obj.dimension.y
-							+ offsetHeight);
-					feathers.add((Feather) obj);
-				} else if (BLOCK_TYPE.ITEM_GOLD_COIN.sameColor(currentPixel)) { // gold
-																				// coin
-					// gold coin
-					obj = new GoldCoin();
-					offsetHeight = -1.5f;
-					obj.position.set(pixelX, baseHeight * obj.dimension.y
-							+ offsetHeight);
-					goldCoins.add((GoldCoin) obj);
-				} else if (BLOCK_TYPE.ITEM_GOAL.sameColor(currentPixel)) { // feather
-					// goal
-					obj = new Goal();
-					offsetHeight = -14.75f;
-					obj.position.set(pixelX, baseHeight * obj.dimension.y
-							+ offsetHeight);
-					goal = (Goal) obj;
-				} else if (BLOCK_TYPE.ITEM_CARROT.sameColor(currentPixel)) {
-					// carrot
-					obj = new Carrot();
-					offsetHeight = -1.5f;
-					obj.position.set(pixelX, baseHeight * obj.dimension.y
-							+ offsetHeight);
-					carrots.add((Carrot) obj);
+					player = (RubberDuck) obj;
 				} else { // unknown object/pixel color
 					int r = 0xff & (currentPixel >>> 24); // red color channel
 					int g = 0xff & (currentPixel >>> 16); // green color channel
@@ -171,34 +130,18 @@ public class Level {
 		for (Rock rock : rocks)
 			// Draw Rocks
 			rock.render(batch);
-		for (GoldCoin goldCoin : goldCoins)
-			// Draw Gold Coins
-			goldCoin.render(batch);
-		for (Feather feather : feathers)
-			// Draw Feathers
-			feather.render(batch);
-		for (Carrot carrot : carrots)
-			// Draw Carrots
-			carrot.render(batch);
-
-		goal.render(batch); // Draw Goal
-		bunnyHead.render(batch); // Draw Player Character
+		
+		player.render(batch); // Draw Player Character
 
 		waterOverlay.render(batch); // Draw Water Overlay
 		clouds.render(batch); // Draw Clouds
 	}
 
 	public void update(float deltaTime) {
-		bunnyHead.update(deltaTime);
+		player.update(deltaTime);
 		for (Rock rock : rocks)
 			rock.update(deltaTime);
-		for (GoldCoin goldCoin : goldCoins)
-			goldCoin.update(deltaTime);
-		for (Feather feather : feathers)
-			feather.update(deltaTime);
-		for (Carrot carrot : carrots)
-			carrot.update(deltaTime);
-		goal.update(deltaTime);
+		
 		clouds.update(deltaTime);
 	}
 }

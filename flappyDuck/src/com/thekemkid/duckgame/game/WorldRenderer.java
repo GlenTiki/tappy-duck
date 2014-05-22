@@ -62,24 +62,6 @@ public class WorldRenderer implements Disposable {
 				"" + worldController.score, x + 75, y + 37);
 	}
 
-	private void renderGuiTimer(SpriteBatch batch) {
-		float x = cameraGUI.viewportWidth / 2;
-		float y = 0;
-		double mins = worldController.timeLeft / 60;
-		double secs = worldController.timeLeft % 60;
-		DecimalFormat df = new DecimalFormat("#");
-		df.setRoundingMode(RoundingMode.FLOOR);
-		DecimalFormat df1 = new DecimalFormat("##");
-		df1.setRoundingMode(RoundingMode.FLOOR);
-		BitmapFont fontTimer = Assets.instance.fonts.defaultBig;
-		fontTimer.setColor(1, 0.75f, 0.25f, 1);
-		fontTimer.drawMultiLine(batch, "Time Left:\n"
-				+ df.format(mins) + ":"
-				+ df1.format(secs), x, y, 0,
-				BitmapFont.HAlignment.CENTER);
-		fontTimer.setColor(1, 1, 1, 1);
-	}
-
 	@Override
 	public void dispose() {
 		batch.dispose();
@@ -88,64 +70,12 @@ public class WorldRenderer implements Disposable {
 	private void renderGuiGameOverMessage(SpriteBatch batch) {
 		float x = cameraGUI.viewportWidth / 2;
 		float y = cameraGUI.viewportHeight / 2;
-		if (worldController.isGameOver()) {
+		if (worldController.isPlayerDead()) {
 			BitmapFont fontGameOver = Assets.instance.fonts.defaultBig;
 			fontGameOver.setColor(1, 0.75f, 0.25f, 1);
 			fontGameOver.drawMultiLine(batch, "GAME OVER!", x, y, 0,
 					BitmapFont.HAlignment.CENTER);
 			fontGameOver.setColor(1, 1, 1, 1);
-		}
-	}
-
-	private void renderGuiWinMessage(SpriteBatch batch) {
-		float x = cameraGUI.viewportWidth / 2;
-		float y = cameraGUI.viewportHeight / 2;
-		if (worldController.isGoalCollected()) {
-			BitmapFont fontWin = Assets.instance.fonts.defaultBig;
-			fontWin.setColor(1, 0.75f, 0.25f, 1);
-			if (worldController.curLevel < Constants.NUM_LEVELS-1) {
-				fontWin.drawMultiLine(batch, "YOU WON THIS LEVEL!\nSCORE: "
-						+ worldController.score, x, y, 0,
-						BitmapFont.HAlignment.CENTER);
-			} else {
-				fontWin.drawMultiLine(batch, "YOU WON THE GAME!\nSCORE: "
-						+ worldController.overallScore, x, y, 0,
-						BitmapFont.HAlignment.CENTER);
-			}
-			fontWin.setColor(1, 1, 1, 1);
-		}
-	}
-
-	private void renderGuiFeatherPowerup(SpriteBatch batch) {
-		float x = -15;
-		float y = 30;
-		float timeLeftFeatherPowerup = worldController.level.bunnyHead.timeLeftFeatherPowerup;
-		if (timeLeftFeatherPowerup > 0) {
-			// Start icon fade in/out if the left power-up time
-			// is less than 4 seconds. The fade interval is set
-			// to 5 changes per second.
-			if (timeLeftFeatherPowerup < 4) {
-				if (((int) (timeLeftFeatherPowerup * 5) % 2) != 0) {
-					batch.setColor(1, 1, 1, 0.5f);
-				}
-			}
-			batch.draw(Assets.instance.feather.feather, x, y, 50, 50, 100, 100,
-					0.35f, -0.35f, 0);
-			batch.setColor(1, 1, 1, 1);
-			Assets.instance.fonts.defaultSmall.draw(batch, ""
-					+ (int) timeLeftFeatherPowerup, x + 60, y + 57);
-		}
-	}
-
-	private void renderGuiExtraLive(SpriteBatch batch) {
-		float x = cameraGUI.viewportWidth - 50 - Constants.LIVES_START * 50;
-		float y = -15;
-		for (int i = 0; i < Constants.LIVES_START; i++) {
-			if (worldController.lives <= i)
-				batch.setColor(0.5f, 0.5f, 0.5f, 0.5f);
-			batch.draw(Assets.instance.bunny.head, x + i * 50, y, 50, 50, 120,
-					100, 0.35f, -0.35f, 0);
-			batch.setColor(1, 1, 1, 1);
 		}
 	}
 
@@ -176,16 +106,10 @@ public class WorldRenderer implements Disposable {
 		// (anchored to top left edge)
 		renderGuiScore(batch);
 
-		// draw extra lives icon + text (anchored to top right edge)
-		renderGuiExtraLive(batch);
-
 		// draw FPS text (anchored to bottom right edge)
 		renderGuiFpsCounter(batch);
 
 		renderGuiGameOverMessage(batch);
-		renderGuiWinMessage(batch);
-		renderGuiFeatherPowerup(batch);
-		renderGuiTimer(batch);
 		batch.end();
 	}
 

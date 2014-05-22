@@ -19,8 +19,10 @@ public class Assets implements Disposable, AssetErrorListener {
 
 	private AssetManager assetManager;
 
+	public AssetDuck player;
+	
 	public AssetCarrot carrot;
-	public AssetBunny bunny;
+	
 	public AssetRock rock;
 	public AssetGoldCoin goldCoin;
 	public AssetFeather feather;
@@ -54,7 +56,7 @@ public class Assets implements Disposable, AssetErrorListener {
 
 		// create game resource objects
 		fonts = new AssetFonts();
-		bunny = new AssetBunny(atlas);
+		player = new AssetDuck(atlas);
 		rock = new AssetRock(atlas);
 		goldCoin = new AssetGoldCoin(atlas);
 		feather = new AssetFeather(atlas);
@@ -78,11 +80,11 @@ public class Assets implements Disposable, AssetErrorListener {
 				(Exception) throwable);
 	}
 
-	public class AssetBunny {
-		public final AtlasRegion head;
+	public class AssetDuck {
+		public final AtlasRegion duck;
 
-		public AssetBunny(TextureAtlas atlas) {
-			head = atlas.findRegion("bunny_head");
+		public AssetDuck(TextureAtlas atlas) {
+			duck = atlas.findRegion("duck");
 		}
 	}
 
